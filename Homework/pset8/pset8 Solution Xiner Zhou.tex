@@ -1,0 +1,493 @@
+\documentclass[11pt]{article} % use larger type; default would be 10pt
+
+
+%%% PAGE DIMENSIONS
+\usepackage[top=1in, bottom=1in, left=1in, right=1in]{geometry} % to change the page dimensions
+ 
+%%% PACKAGES
+\usepackage{graphicx} % support the \includegraphics command and options
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{tikz}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage{bbm}
+\usetikzlibrary{arrows}
+%%% The "real" document content comes below...
+
+\title{CS 134: Networks \\ \emph{Problem Set 8}}
+\author{Xiner Zhou}
+\date{\today} % Activate to display a given date or no date (if empty),
+        
+
+\begin{document}
+ 
+\maketitle
+
+\paragraph{1. Alternative Definition for Submodular Functions (15 points)}
+ 
+\begin{itemize}
+\item[\textbf{a. }]  
+\textcolor{red}{Solution:} 
+First, we show that: 
+$$f(S \cup a)-f(S) \ge f(T \cup a)-f(T), for \ S \subseteq T \ and \ a\notin T $$
+$$ \Rightarrow f(A \cup B) \le f(A)+f(B)-f(A \cap B) $$
+
+Let $A\setminus B=\{b_1,...,b_n \}$, therefore $A\cup B=A \cup \{b_1,...,b_n \}$, and let $\{b_0\}=\emptyset$.
+
+$$ f(A \cup B)-f(A)=[f(A \cup \{b_1,...,b_n \})-f(A \cup \{b_1,...,b_{n-1} \})]$$
+$$ +[f(A \cup \{b_1,...,b_{n-1} \})-f(A \cup \{b_1,...,b_{n-2} \})]$$
+$$ + \dots$$
+$$ +[f(A \cup \{b_1 \})-f(A \cup \{b_0\})]$$
+$$=\sum_{j=1}^{n} f(A \cup \{b_1,...,b_j \})-f(A \cup \{b_1,...,b_{j-1} \})$$ 
+$$=\sum_{j=1}^{n} f_{A \cup \{b_1,...,b_{j-1} \}} (b_j) \dots (1)$$ 
+Which is the sum of the marginal contribution of $b_j$ to $A \cup \{b_1,...,b_{j-1} \}$, across all $j$.
+
+Since $B=(A \cap B) \cup \{b_1,...,b_n \}$, 
+$$ f(B)-f(A \cap B)=f((A \cap B) \cup \{b_1,...,b_n \})-f(A \cap B)$$
+$$=[f((A \cap B) \cup \{b_1,...,b_n \})-f((A \cap B) \cup \{b_1,...,b_{n-1} \})]$$
+$$ +[f((A \cap B) \cup \{b_1,...,b_{n-1} \})-f((A \cap B) \cup \{b_1,...,b_{n-2} \})]$$
+$$ + \dots$$
+$$ +[f((A \cap B) \cup \{b_1 \})-f((A \cap B) \cup \{b_0\})]$$
+$$=\sum_{j=1}^{n} f((A \cap B) \cup \{b_1,...,b_j \})-f((A \cap B) \cup \{b_1,...,b_{j-1} \})$$ 
+$$=\sum_{j=1}^{n} f_{(A \cap B) \cup \{b_1,...,b_{j-1} \}} (b_j) \dots (2)$$ 
+Which is the sum of the marginal contribution of $b_j$ to $ (A \cap B) \cup \{b_1,...,b_{j-1} \}$, across all $j$.
+
+Compare (1) and (2), for $\forall j \in \{ 1,...,n\}$, since $A\cap B \subseteq A$, therefore $ (A \cap B) \cup \{b_1,...,b_j \} \subseteq A \cup \{b_1,...,b_j \}$. By the definition of submodularity, the marginal contribution of $b_j$ is diminishing:
+$$ \Rightarrow f_{(A \cap B) \cup \{b_1,...,b_{j-1} \}} (b_j) \ge  f_{A \cup \{b_1,...,b_{j-1} \}} (b_j), for \ \forall j $$
+$$ \Rightarrow \sum_{j=1}^{n} f_{(A \cap B) \cup \{b_1,...,b_{j-1} \}} (b_j) \ge \sum_{j=1}^{n} f_{A \cup \{b_1,...,b_{j-1} \}} (b_j) $$
+$$ \Rightarrow (2) \ge (1) $$
+$$ \Rightarrow f(B)-f(A \cap B) \ge f(A \cup B)-f(A) $$ 
+$$ \Rightarrow f(A \cup B) \le f(A)+f(B)-f(A \cap B) $$
+Conclude the proof.  
+
+Second, we show that:
+$$ f(A \cup B) \le f(A)+f(B)-f(A \cap B) $$
+$$ \Rightarrow f(S \cup a)-f(S) \ge f(T \cup a)-f(T), for \ S \subseteq T \ and \ a\notin T $$
+
+Let $A=S\cup a$, $B=T$,  $for \ S \subseteq T \ and \ a\notin T $, then:
+$$ A\cup B=(S\cup a)\cup T=T\cup a $$ 
+$$ A\cap B=(S\cup a)\cap T=S$$ 
+Plug into the inequality, we get:
+$$ f(T\cup a) \le f(S\cup a)+f(T)-f(S)$$
+$$\Rightarrow f(S \cup a)-f(S) \ge f(T \cup a)-f(T), for \ S \subseteq T \ and \ a\notin T  $$
+Conclude the proof.  
+
+
+\item[\textbf{b. }]  
+\textcolor{red}{Solution:}
+Let $A\setminus B= \{b_1,...,b_n \}$, therefore, $A\cup B=A \cup \{b_1,...,b_n \}$, and let $\{b_0\}=\emptyset$.
+
+$$ f(A \cup B)-f(A)=\sum_{j=1}^{n} f_{A \cup \{b_1,...,b_j \}} (b_j) \dots (1)$$ 
+
+$$ f(B)=[f(\{b_1,...,b_n \})-f( \{b_1,...,b_{n-1} \})]$$
+$$ +[f( \{b_1,...,b_{n-1} \})-f( \{b_1,...,b_{n-2} \})]$$
+$$ + \dots$$
+$$ +[f( \{b_1 \})-f( \{b_0\})]$$
+$$=\sum_{j=1}^{n} f( \{b_1,...,b_j \})-f( \{b_1,...,b_{j-1} \})$$ 
+$$=\sum_{j=1}^{n} f_{ \{b_1,...,b_{j-1} \}} (b_j) \dots (2)$$
+
+Compare (1) and (2), for $\forall j \in \{ 1,...,n\}$, since $ \{b_1,...,b_j \} \subseteq A \cup \{b_1,...,b_j \}$. By the definition of submodularity, the marginal contribution of $b_j$ is diminishing:
+$$ \Rightarrow f_{(A \cap B) \cup \{b_1,...,b_{j-1} \}} (b_j) \ge  f_{A \cup \{b_1,...,b_{j-1} \}} (b_j), for \ \forall j $$
+$$ \Rightarrow \sum_{j=1}^{n} f_{(A \cap B) \cup \{b_1,...,b_{j-1} \}} (b_j) \ge \sum_{j=1}^{n} f_{A \cup \{b_1,...,b_{j-1} \}} (b_j) $$
+$$ \Rightarrow (2) \ge (1) $$
+$$ \Rightarrow f(B)-f(A \cap B) \ge f(A \cup B)-f(A) $$ 
+$$ \Rightarrow f(A \cup B) \le f(A)+f(B)-f(A \cap B) $$
+Conclude the proof.  
+
+\end{itemize}	
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\paragraph{2. The Transition Matrix (20 points)} 
+ 
+\begin{itemize}
+\item[\textbf{a. }]  
+\textcolor{red}{Solution:}
+ 
+$M=\left[ \begin{array}{ccccc}
+\frac{1}{5} & \frac{1}{5} & \frac{1}{5} & \frac{1}{5} & \frac{1}{5} \\
+\frac{1}{3} & \frac{1}{3} & \frac{1}{3} & 0  & 0 \\
+\frac{1}{4} & \frac{1}{4} & \frac{1}{4} & \frac{1}{4} & 0 \\
+\frac{1}{4} & 0 & \frac{1}{4} & \frac{1}{4} & \frac{1}{4} \\
+\frac{1}{3} &  0  & 0 & \frac{1}{3} & \frac{1}{3} \end{array} \right]$
+
+
+\item[\textbf{b. }]  
+\textcolor{red}{Solution:}
+$$P[a \ random \ walk \ from \ a \ to \ e \ in \ 2 \ steps]$$
+$$=p_{a,e}^2=\mathbbm{1_a}  M^2 \mathbbm{1_e^T} $$
+$$=0.1567$$
+
+\item[\textbf{c. }]   
+\textcolor{red}{Solution:}
+$$P[opinion \ of \ node \ a \ reaches \ node \ e \ in \ 2 \ steps]$$
+$$=P[a \ random \ walk \ from \ a \ to \ e \ in \ 2 \ steps]$$
+$$=p_{a,e}^2=\mathbbm{1_a}  M^2 \mathbbm{1_e^T}$$
+$$=0.1567$$
+
+\end{itemize}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\paragraph{3. Random Walks (10 points)} 
+ \textcolor{red}{Solution:}
+\textbf{Proof:} The proof is by induction on t. 
+ 
+For $t=0$, the probability of a random walk starting at $u$ and ending at $v$ after 0 step is 1 if $u=v$, and is 0 otherwise: 
+$$ p_{u,v}^0= \begin{cases} 
+1, &\mbox{if } u=v \\
+ 0, & \mbox{o.w.} \end{cases}$$
+ 
+Since $\mathbbm{1_u} M^0 \mathbbm{1_v^T}=\mathbbm{1_u} \mathbbm{1_v^T}= \begin{cases} 
+1, &\mbox{if } u=v \\
+ 0, & \mbox{o.w.} \end{cases}$ 
+Therefore, $p_{u,v}^0=\mathbbm{1_u} M^0 \mathbbm{1_v^T} $.
+
+For $t=1$, the probability of a random walk starting at $u$ and ending at $v$ after 1 step is $\frac{1}{d(u)}$ if $v \in d(u)$, and is 0 otherwise: 
+$$ p_{u,v}^1= \begin{cases} 
+\frac{1}{d(u)}, &\mbox{if } v \in d(u) \\
+ 0, & \mbox{o.w.} \end{cases}$$
+
+Since $\mathbbm{1_u} M^1 \mathbbm{1_v^T}= \begin{cases} 
+\frac{1}{d(u)}, &\mbox{if } v \in d(u) \\
+ 0, & \mbox{o.w.} \end{cases}$ 
+Therefore, $p_{u,v}^1=\mathbbm{1_u} M^1 \mathbbm{1_v^T} $.
+
+For general $t>1$, assume  $p_{u,v}^{t-1}=\mathbbm{1_u} M^{t-1} \mathbbm{1_v^T} $. The process that a random walk starting from $u$ and ending at $v$ after t steps, can be break down into two stages: on the first stage, a random walk starts from $u$ and ends at one of its neighbors $w$ after $1$ step, with equal probability $\frac{1}{d(u)}=\frac{1}{|N(u)|}$; on the second stage, a random walk starts from $w$ and ends at $v$ after $t-1$ step. Therefore:
+
+$$ p_{u,v}^t=P[a \ random \ walk \ from \ u \ to \ v \ after \ t \ steps]$$
+$$=\sum_{w \in N(u)} \frac{1}{|N(u)|} P[a \ random \ walk \ from \ u \ to \ w \ after \ 1 \ steps]$$
+$$\times P[a \ random \ walk \ from \ w \ to \ v \ after \ t-1 \ steps]$$
+$$=\sum_{w \in N(u)}\frac{1}{|N(u)|} p_{u,w}^{t-1} p_{w,v}^1$$
+$$=\sum_{w \in N(u)} \frac{1}{|N(u)|} \mathbbm{1_u} M^{t-1}  \mathbbm{1_w^T} \mathbbm{1_w} M \mathbbm{1_v}$$
+$$=\sum_{w \in N(u)} \frac{1}{|N(u)|} \mathbbm{1_u} M^{t-1} M \mathbbm{1_v}$$
+$$=\sum_{w \in N(u)} \frac{1}{|N(u)|} \mathbbm{1_u} M^{t} \mathbbm{1_v}$$
+$$= \mathbbm{1_u} M^{t} \mathbbm{1_v}$$
+
+Thus, by induction, the probability of a eandom walk starting from $u$ and ending at $v$ after t steps is $p_{u,v}^t= \mathbbm{1_u} M^{t} \mathbbm{1_v}$.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\paragraph{4. DeGroot Model (30 points)} 
+ 
+\begin{itemize}
+\item[\textbf{a. }]  
+\textcolor{red}{Solution:}
+Let $M=(m_{ij})_{n\times n} $ be the trust matrix, with its $(i, j)$th entry represents the weight $m_{ij}>0$ that person $i$ puts on person $j$. Then,
+$$p(t+1)=\left( \begin{array}{c}
+p_1(t+1)\\
+\hdots \\
+p_i(t+1)\\
+\hdots  \\
+p_n(t+1)
+\end{array}\right) =\left( \begin{array}{c}
+\sum_{j=1}^n m_{1,j}p_j(t) \\
+\hdots \\
+\sum_{j=1}^n m_{i,j}p_j(t) \\
+\hdots \\
+\sum_{j=1}^n m_{n,j}p_j(t) 
+\end{array}\right) $$
+
+$$=\left( \begin{array}{cccc}
+m_{1,1} & m_{1,2} &  \hdots & m_{1,n} \\
+\hdots & \hdots & \hdots & \hdots   \\ 
+m_{i,1} & m_{i,2} & \hdots & m_{i,n} \\
+\hdots & \hdots & \hdots & \hdots \\
+m_{n,1} & m_{n,2} &  \hdots & m_{n,n} 
+\end{array}\right) 
+\left( \begin{array}{c}
+p_1(t) \\
+p_2(t) \\
+\hdots \\
+p_n(t)
+\end{array}\right)  $$
+$$=M p(t)$$ 
+
+
+\item[\textbf{b. }]  
+\textcolor{red}{Solution:}
+$M=\left[ \begin{array}{ccc}
+0.4 & 0.6 & 0 \\
+0 & 0 & 1  \\
+0.3 &  0  & 0.7   \end{array} \right]$
+
+
+
+\item[\textbf{c. }] 
+\textcolor{red}{Solution:}
+$$p(1)=Mp(0)=\left(  \begin{array}{ccc}
+0.4 & 0.6 & 0 \\
+0 & 0 & 1  \\
+0.3 &  0  & 0.7   \end{array}\right) 
+\left( \begin{array}{c}
+1 \\
+0.7 \\
+0
+\end{array}\right) =
+\left( \begin{array}{c}
+0.82 \\
+0 \\
+0.3
+\end{array}\right)  $$
+
+$$p(2)=Mp(1)=\left(  \begin{array}{ccc}
+0.4 & 0.6 & 0 \\
+0 & 0 & 1  \\
+0.3 &  0  & 0.7   \end{array}\right) 
+\left( \begin{array}{c}
+0.82 \\
+0 \\
+0.3
+\end{array}\right) =
+\left( \begin{array}{c}
+0.328 \\
+0.3 \\
+0.456
+\end{array}\right)  $$
+
+
+\item[\textbf{d. }] 
+\textcolor{red}{Solution:}
+$$ \lim_{t\to \infty} p(t)=\lim_{t\to \infty} T^t p(0)= T^{\infty} p(0)$$
+$$=\left(  \begin{array}{ccc}
+0.2778 & 0.1667 & 0.5556 \\
+0.2778 & 0.1667 & 0.5556 \\
+0.2778 & 0.1667 & 0.5556  \end{array}\right) 
+\left( \begin{array}{c}
+1 \\
+0.7 \\
+0
+\end{array}\right) =
+\left( \begin{array}{c}
+0.3944 \\
+0.3944\\
+0.3944
+\end{array}\right)$$
+
+Yes, the group reaches a consensus. In this DeGroot Model, node $1$ bases its opinion on itself and node $2$; node $2$ bases its opinion solely on $3$; and node $3$ bases its opinion on itslef and node $1$. Their opinions are updated within a closed loop, everyone listens to everyone else, thus leading to conformity. That meas, no matter what the initial opinion distribution is, as a result of this learning process, long enough after, as long as no new information coming in, their opinions will converge to a point where no further update happens. After that, they will share the same belief.
+
+
+\item[\textbf{e. }]  
+\textcolor{red}{Solution:}
+
+ \begin{center}
+\includegraphics[width=3in]{Q4e.png}
+\end{center}
+$$M=\left[ \begin{array}{ccc}
+1& 0.5 & 0.5 \\
+1 & 0 & 0  \\
+1 &  0  & 0  \end{array} \right]$$
+
+$$p(0)=\left( \begin{array}{c}
+0 \\
+1 \\
+0
+\end{array}\right)$$
+
+So, for any $k \ge 1$:
+$$p(2k-1)=\left( \begin{array}{c}
+1 \\
+0 \\
+1
+\end{array}\right)$$
+and
+$$p(2k)=\left( \begin{array}{c}
+0 \\
+1 \\
+0
+\end{array}\right)$$
+
+Their beliefs are always switching back and forth. So, $\lim_{t \to \infty}p(t)$ does not exist and beliefs do not converge in the limit. Intuitively, 1 update belief based on 2 and 3's prior beliefs, while 2 and 3 update their belief solely based on 1's prior belief, so 1 and 2,3 interchange their beliefs in each period.
+
+\item[\textbf{f. }]  
+\textcolor{red}{Solution:}
+
+$$p(\infty)=\lim_{t \to \infty} p(t) = \lim_{t \to \infty} M^t p(0) $$
+$$=\left( \begin{array}{cccc}
+1/2 & 1/2 &  \hdots & 0 \\
+0 & 1/2 & 1/2 & \hdots   \\ 
+\hdots & \hdots & \hdots & \hdots \\
+1/2 & 0 &  \hdots & 1/2
+\end{array}\right)^t 
+\left( \begin{array}{c}
+p_1(0) \\
+p_2(0) \\
+\hdots \\
+p_n(0)
+\end{array}\right)  $$
+
+$$=\left( \begin{array}{cccc}
+1/n & 1/n &  \hdots & 1/n \\
+1/n & 1/n & 1/n & \hdots   \\ 
+\hdots & \hdots & \hdots & \hdots \\
+1/n & 1/n &  \hdots & 1/n
+\end{array}\right) 
+\left( \begin{array}{c}
+p_1(0) \\
+p_2(0) \\
+\hdots \\
+p_n(0)
+\end{array}\right)  $$
+
+$$=
+\left( \begin{array}{c}
+\frac{1}{n} \sum_{i=1}^{n} p_i(0) \\
+\frac{1}{n} \sum_{i=1}^{n} p_i(0)  \\
+\hdots \\
+\frac{1}{n} \sum_{i=1}^{n} p_i(0) 
+\end{array}\right)  $$
+
+Intuitively, at each time step, everyone puts equal weights (1/2) on itself and next node. As time goes on long enough, everyone is able to reach everyone else in the network, that is, able to get everyone's opinion and puts equal weights on all of people in the network. Therefore, the converge would be equally weighted (1/n) average of the original opinions, where the group reaches a concensus.
+
+ \end{itemize}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\paragraph{5. Learning Influence Locally (again) (25 points)}
+ 
+\begin{itemize}
+\item[\textbf{a. }]  
+\textcolor{red}{Solution:}
+ \begin{center}
+\includegraphics[width=5in]{pset8_network1.png}
+\end{center}
+
+$\tau=35$, and there are 35 different diffusion processes.
+
+\item[\textbf{b. }] 
+\textcolor{red}{Solution:}
+There are 35 nodes, and the average out-degree is 4.2857.
+
+\item[\textbf{c. }] 
+\textcolor{red}{Solution:}
+Linear equations that constrain how a node $u$ in the voter model influences its neighbors:
+\begin{itemize}
+	\item[\textbf{Constraint 1:}]
+	$$ \sum_{v \in N(u)} w_{(u,v)} opinion_{i}[v][t-1] \ge 0.5 $$ for all time steps $t$ during diffusion $i$ at which $u$ has opinion 1, that is, $opinion_{i}[u][t]=1$.
+	\item[\textbf{Constraint 2:}]
+	$$  \sum_{v \in N(u)} w_{(u,v)} opinion_{i}[v][t-1] < 0.5 $$ for all time steps $t$ during diffusion $i$ at which $u$ has opinion 0, that is, $opinion_{i}[u][t]=0$.
+	\item[\textbf{Constraint 3:}]
+	$$ 0 \le w_{(u,v)} \le 1, for \forall v \in N(u)$$
+	\item[\textbf{Constraint 4:}]
+	$$ \sum_{v \in N(u)} w_{(u,v)}=1 $$
+\end{itemize}
+
+
+\item[\textbf{d. }]  
+\textcolor{red}{Solution:}
+In order to implement in Python, we need to re-write the above optimization in a slightly different way (and programming-wise we need to translate constraints into matrix expression):\\
+
+\textbf{Objective function:}
+$$Maximize:  \sum_{v \in N(u)} w_{(u,v)} $$
+\textbf{Subject to:}
+\begin{itemize}
+	\item[\textbf{Constraint 1:}]
+	$$ \sum_{v \in N(u)} w_{(u,v)} opinion_{i}[v][t-1] \ge 0.5 $$ for all time steps $t$ during diffusion $i$ at which $u$ has opinion 1, that is, $opinion_{i}[u][t]=1$.
+	\item[\textbf{Constraint 2:}]
+	$$  \sum_{v \in N(u)} w_{(u,v)} opinion_{i}[v][t-1] < 0.5 $$ for all time steps $t$ during diffusion $i$ at which $u$ has opinion 0, that is, $opinion_{i}[u][t]=0$.
+	\item[\textbf{Constraint 3:}]
+	$$ 0 \le w_{(u,v)} \le 1, for \forall v \in N(u)$$
+	\item[\textbf{Constraint 4:}]
+	$$ \sum_{v \in N(u)} w_{(u,v)} \le 1 $$
+\end{itemize}
+
+The estimated weight of edge $(2, 16)=0.0$, and the estimated weight of $(29,22)=0.0$.  For the complete list of estimates, please see "weight.csv".
+
+\item[\textbf{e. }]  
+\textcolor{red}{Solution:}
+In the voter model, the probability of a node v adopting a node u's original belief after t steps is equal to the probability of a random walk from v to u after t steps, therefore, the higher the in-degree the larger the influence is. In a weighted directed network, we can assume the total or average weighted in-degree as a measure of influence.
+
+If using the average weights (in-degree), we get that the five students (nodes) should Raynor first invite to the app are (ordered from high to low): 
+$$ 15,12,31,11,29$$
+and their average influence are: 
+$$ 0.5, 0.375, 0.333, 0.333, 0.333 $$ 
+
+However, if using the sum weights (in-degree), we get that the five students (nodes) should Raynor first invite to the app are (ordered from high to low): 
+$$8, 1, 13, 25, 4 $$
+and their total influence are: 
+$$ 2.775, 2.202, 1.792, 1.696, 1.625 $$
+ 
+\end{itemize}    
+   
+ 
+ 
+\end{document}

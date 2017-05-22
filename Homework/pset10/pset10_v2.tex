@@ -1,0 +1,168 @@
+%
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\DeclareMathOperator*{\E}{\mathbb{E}}
+\let\Pr\relax
+\DeclareMathOperator*{\Pr}{\mathbb{P}}
+\DeclareMathOperator*{\argmin}{argmin}
+
+\newcommand{\eps}{\varepsilon}
+\newcommand{\inprod}[1]{\left\langle #1 \right\rangle}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\code}[1]{\texttt{#1}}
+
+
+\newcommand{\handout}[5]{
+  \noindent
+  \begin{center}
+  \framebox{
+    \vbox{
+      \hbox to 6.38in { \textcolor{black}{\bf CS 134: Networks } \hfill #4  }
+      \vspace{1mm}
+      \hbox to 6.42in { #3 {\hfill #2 } }
+      \vspace{0.0mm}
+      \hbox to 6.38in { { \hfill} }
+    }
+  }
+  \end{center}
+  \vspace*{0mm}
+}
+
+\newcommand{\pset}[3]{\handout{{#1}}{\textcolor{red}{Due: #2}}{\textcolor{black}{#3}}{\textcolor{gray}{\textbf{Problem set #1}}}}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{observation}[theorem]{Observation}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{fact}[theorem]{Fact}
+\newtheorem{assumption}[theorem]{Assumption}
+\newtheorem{remark}[theorem]{Remark}
+
+\newtheorem*{theorem*}{Theorem}
+\newtheorem*{notation*}{Notation}
+\newtheorem*{assumption*}{Assumption}
+\newtheorem*{fact*}{Fact}
+\newtheorem*{claim*}{Claim}
+\newtheorem*{definition*}{Definition}
+\newtheorem*{exercise*}{Exercise}
+\newtheorem*{lemma*}{Lemma}
+\newtheorem*{remark*}{Remark}
+
+% 1-inch margins, from fullpage.sty by H.Partl, Version 2, Dec. 15, 1988.
+\topmargin 0pt
+\advance \topmargin by -\headheight
+\advance \topmargin by -\headsep
+\textheight 8.9in
+\oddsidemargin 0pt
+\evensidemargin \oddsidemargin
+\marginparwidth 0.5in
+\textwidth 6.5in
+
+\parindent 0in
+\parskip 1.5ex
+
+
+\usepackage[margin=.9in]{geometry}
+\usepackage{amsmath}
+\usepackage{tikz}
+\usepackage{float}
+\usepackage{filecontents}
+\usepackage{pgfplots, pgfplotstable}
+%\usepgfplotslibrary{statistics}
+\usepackage[T1]{fontenc}
+\usetikzlibrary{calc,intersections,through,backgrounds,shadings}
+\usetikzlibrary{shapes.geometric}
+\usetikzlibrary{through}
+
+\usepackage[nofiglist,nomarkers]{endfloat}
+\renewcommand{\efloatseparator}{\mbox{}}
+
+\usepackage{exercise}
+\renewcommand{\ExerciseHeader}{{ \textbf{
+\ExerciseName \ \ExerciseHeaderNB \ExerciseHeaderTitle
+\ExerciseHeaderOrigin.}}}
+
+\usepackage{pgfplots}
+\pgfplotsset{
+%  compatgraph=newest,
+  xlabel near ticks,
+  ylabel near ticks
+}
+
+
+\begin{document}
+
+\pset{10}{\textbf{Due Wednesday, 4/19/17 at noon}}{{Prof. Yaron Singer}}
+TThe first two questions of this problem set are drawn from \textit{Understanding Machine Learning: Theory and Algorithms}.
+
+\paragraph{1. Suboptimality of $k$-means (Understanding Machine Learning, 22.8 Q1) (20 points)}
+For every parameter $t > 1$, show that there exists an instance of the k-means problem for which the k-means algorithm (might) find a solution whose k-means objective is at least $t \cdot OPT$, where OPT is the minimum k-means objective.
+
+\paragraph{2. $k$-means Might Not Necessarily Converge to a Local Minimum (Understanding Machine Learning, 22.8 Q2) (20 points)}
+Show that the k-means algorithm might converge to a point which is not a local minimum. Hint: Suppose that $k = 2$ and the sample points are $\{1, 2, 3, 4\} \subset \mathbb{R}$; suppose we initialize the k-means with the centers $\{2, 4\}$;
+and suppose we break ties in the definition of $C_i$ by assigning $i$ to be the smallest value in $\text{argmin}_j \mid \mid x - \mu_j \mid \mid$.
+
+\paragraph{3. Ethics, revisited (30 points)}
+During the ethics lecture, we discussed a number of different strategies that Facebook could use to suppress the spread of fake news through its network. Briefly explain one of these strategies in a single paragraph. Then, in two further paragraphs, explain whether or not you think Facebook is morally obligated to implement the strategy. Defend your answer, drawing on material from the ethics lecture. Your answer should be between 400 and 600 words.
+
+\paragraph{4. Investigating Parameters of K-Means (30 points)}
+In this problem you will investigate the use of various parameters of $k$-means, in particular the number of clusters $k$ and methods of assigning nodes to clusters.
+
+\begin{enumerate}
+    \item[\textbf{a.}] \textbf{(5 points)} Load the undirected graph from the file \code{data.txt}. How many nodes and edges does this network have?
+
+    \item[\textbf{b.}] \textbf{(6 points)} Implement a function \code{min\_pairwise(g)} that takes a graph and returns a new matrix \code{distances} of size \code{(n,n)} where \code{n} is the number of nodes in the graph. This matrix \code{distances} should describe the shortest path distances between any two nodes, for example \code{distances[i][j]} should be the shortest distance from \code{i} to \code{j} on the graph. What's the average shortest pairs distance over all pairs?
+
+    \textbf{Hint:} You can do this several ways. One option uses BFS and should have complexity $O(V(V+E))$ (that is, it'll iterate over [every node and edge] for every node); while another BFS option will have complexity $O(E(V+E))$; and another will use an algorithm called Floyd-Warshall and have complexity $O(V^3)$; only one of these options will be moderately fast, and thus, correct! \textbf{However you do it, do it yourself without using any modules or packages.}
+
+    \item[\textbf{c.}] \textbf{(3 points)} Implement a function \code{dist(p, m, c, norm)} that accepts a node \code{p}, a matrix of shortest distances \code{m}, a "cluster" (an array or set, your choice) of nodes \code{c}, and a string parameter \code{norm} with possible values "min", "max", or "mean" referring to the following respective metrics. This function should return the appropriate distance between the point and the cluster \code{c}:
+
+    \begin{center}
+        \begin{tabular}{| c | c |}
+            \hline
+            norm & metric\\
+            \hline
+            \code{min(p,c)} & $\min_{i\in c}\{m[p][c]\}$\\
+            \hline
+            \code{max(p,c)} & $\max_{i\in c}\{m[p][c]\}$\\
+            \hline
+            \code{mean(p,c)} & $\frac{\sum_{i\in c}\{m[p][c]\}}{|c|}$\\
+            \hline
+        \end{tabular}
+    \end{center}
+
+    What's the distance between node $5$ and the cluster $\{2, 8, 20\}$ under each of the three metrics?
+
+    \item[\textbf{d.}] \textbf{(2 points)} Write a function \code{assign(p, m, c\_list, norm)} that accepts a node \code{p}, a matrix of shortest distances \code{m} and a list of clusters \code{c\_list}, and a string parameter \code{norm} as defined above. This function should utilize \code{dist} to find the closest cluster to \code{p} and return the index of that cluster in the list of clusters \code{c\_list}.
+
+    Given node 5 and clusters \code{[\{2, 8, 20\}, \{3, 4, 8, 26\}]}, what does \code{assign} return for each of the three metrics?
+
+    \item[\textbf{e.}] \textbf{(3 points)} Write a function \code{center(m, c)} that accepts a matrix of shortest distances \code{m} and a cluster \code{c}, and returns the node that minimizes the k-means objective function within the cluster \code{c}, i.e.:
+
+    $$ \argmin_{i\in c}\sum_{j\in c}\left(m[j][i]\right)^2 $$
+
+    Given cluster \code{\{2, 3, 4, 8, 20, 26\}}, what node is the center of the cluster?
+
+    \item[\textbf{f.}] \textbf{(6 points)} Time to put it all together! Write a function \code{cluster(m, k, norm, i)} that accepts a shortest distances matrix \code{m}, a number of clusters \code{k}, a string parameter \code{norm} as defined above, and a number of iterations \code{i}. This function should be your k-means implementation, and should return a list of the clusters you obtain. Your k-means algorithm should follows these steps, which \textbf{differs in specific ways from the canonical version}:
+
+    \begin{enumerate}
+        \item Randomly select $k$ nodes to initialize the clusters.
+        \item In random order, assign every other node in the graph to one of the clusters.
+        \item Reinitialize new clusters at the "center" nodes of each of the clusters.
+        \item Repeat steps (b) and (c) as many times as required/desired.
+    \end{enumerate}
+
+    Note that the standard k-means algorithm works on points in space, and computes assignments using means of the clusters. We here instead apply k-means to networks using shortest edge distance and assign based on entire clusters instead of precalculated single node centers. Both of these modifications remove the guarantee that this algorithm will converge, though the latter helps us minimize the objective function within fewer iterations (at the cost of increased computation time). As a result, you should cap the number of iterations you do at 20.
+
+    \item[\textbf{g.}] \textbf{(5 points)} Report the value of \code{center}, the value of objective function on the center, and the size of each cluster for 3 runs (max. 20 iterations each) of the k-means algorithm for each of the values of $k=[3, 5, 10, 20]$ for each of the three types of norms. (A table would be a good way to organize this data, and thus earn your TF's love.) What do you notice about the center/objective function and the sizes of your clusters as $k$ increases and across different norms? Any guesses as to why this is? \textbf{Include your values for this part and all previous parts in your writeup for credit. Given the restrictions on iteration size and the trials we ask you to run, runtime should not be more than 40 minutes. Of particular computational cost are parts \textbf{b.} and \textbf{g.}}
+
+\end{enumerate}
+\end{document}

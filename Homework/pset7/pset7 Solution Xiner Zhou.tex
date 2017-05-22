@@ -1,0 +1,278 @@
+\documentclass[11pt]{article} % use larger type; default would be 10pt
+
+
+%%% PAGE DIMENSIONS
+\usepackage[top=1in, bottom=1in, left=1in, right=1in]{geometry} % to change the page dimensions
+ 
+%%% PACKAGES
+\usepackage{graphicx} % support the \includegraphics command and options
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{tikz}
+\usepackage{graphicx}
+\usepackage{color}
+
+
+%%% The "real" document content comes below...
+
+\title{CS 134: Networks \\ \emph{Problem Set 7}}
+\author{Xiner Zhou}
+\date{\today} % Activate to display a given date or no date (if empty),
+        
+
+\begin{document}
+ 
+\maketitle
+   
+\paragraph{1. Estimating Marginal Contribution to Influence using Sampling. (30 points)} 
+
+\begin{itemize}
+\item[\textbf{a.}] 
+\textcolor{red}{Solution:} $X_S$ is the random variable denoting the number of nodes infected when $S$ is chosen as the initial set of adopters, i.e., $r_i(S)=|R_i(S)|$, with probability distribution of $P[G=G_i]$, where ${G_{i}=(V,E_i)}_{i=1}^{m}$ are realized graphs of the random graph $G=(V,E,p)$. Then, by definition, the expected number of nodes infected by the initial set of adopters is just the expectation of $X_S$: 
+$$f(S)=\sum_{i=1}^{m} P[G=G_i] |R_i(S)|$$
+$$=\sum_{i=1}^{m} P[G=G_i] r_i(S)$$
+$$=E[X_S]$$
+		
+\item[\textbf{b.} ]  
+\textcolor{red}{Solution:}
+$$f_S(a)=f(S \cup a)-f(S)=E[X_{S \cup a}]-E[X_{S}]=E[X_{S \cup a} - X_{S}]$$
+		
+\item[\textbf{c.} ]  
+\textcolor{red}{Solution:}	
+The empirical estimation of $f_S(a)$ is the average value of $l$ samples ${X_{i, S \cup a} - X_{i, S}}_{i=1}^{l}$. Here, we want to bound the estimation error, so that, once we have enough samples, we will be guaranteed to have an estimation not too far from the truth.
+
+We want $P[|\widetilde{f_S(a)}-f_S(a)| \le \epsilon] \ge 1-\frac{1}{n^2 k}$, it is equivalent to :
+$$ P[|\widetilde{f_S(a)}-f_S(a)| \ge \epsilon] \le  \frac{1}{n^2 k} $$.
+
+Since $\widetilde{f_S(a)}$ is just the empirical mean of $l$ samples of $X_{S \cup a} - X_{S}$ , using the Chernoff bound, we know that: 
+$$ P[|\widetilde{f_S(a)}-f_S(a)| \ge \epsilon] \le 2 e^{\frac{-2l\epsilon^2}{n^2}} $$
+
+Therefore, if $2 e^{\frac{-2 l \epsilon^2}{n^2}} $ $\le  \frac{1}{n^2 k}$, then we are guaranteed to have:
+$$ P[|\widetilde{f_S(a)}-f_S(a)| \ge \epsilon] \le   e^{\frac{-2 l \epsilon^2}{n^2}}  \le \frac{1}{n^2 k} $$
+
+Given a precision parameter $ \epsilon$ $ > 0$, the number of nodes in the network $n$, and the cardinality constraint k. Solve the inequality for sample size $l$:
+$$2 e^{\frac{-2 l \epsilon^2}{n^2}} \le  \frac{1}{n^2 k}$$
+$$ \Rightarrow l \ge \frac{n^2}{2 \epsilon^2} log(2 n^2 k) $$
+
+Now we have proved that for our influence function, we can obtain arbitraty good approximations of the marginal contribution of a node using a modest number of samples.
+
+\item[\textbf{d.} ]  
+\textcolor{red}{Solution:}
+Given graph $G=(V,E)$ with edge probabilities ${p_{v,w}}_{(v,w) \in E}$, a precision parameter $\epsilon >0$, the number of nodes in the network $n$, and the cardinality constraint k. Let the sample size $m \ge \frac{n^2}{2 \epsilon^2} log(2 n^2 k) $. For any set $S \subseteq V$: \\
+
+\textbf{Algorithm:}  
+\begin{itemize}
+\item[1]  For $i=1$ to $m$ do: 
+	\subitem[2] Realize every edge in $(v,w) \in E$ with probabilities $p_{v,w} $ and set $E'$ to be the set of realized edges.
+	\subitem[3] For every node $a \notin S$: Calculate marginal contribution of $a$ to the set $S$ in the $i$th realization, denotes as $\widetilde{f_{i,S}(a)}$.
+\item[4] End for
+\item[5] Calculate the empirical mean of the $m's$ sample for all nodes $a \notin S$, as the estimated marginal contribution using sampling, i.e., $$ \forall a \notin S, \widetilde{f_S(a)}=\frac{1}{m} \sum_{i=1}^{m} f_{i,S}(a)$$.
+\item[6]  Return the element a that maximze the estimated marginal contribution using sampling, that is, $$a= arg \ max _{a \notin S} \widetilde{f_{S}(a)}$$
+\end{itemize}
+
+\textbf{The algorithm guarantees that $P( \widetilde{f_S(a)} \ge max_{b \in V} f_S(b) - \frac{\epsilon^2}{k} ) \ge 1-\frac{1}{nk}$}.
+
+\textbf{Proof:} 
+$$P( \widetilde{f_S(a)} \le max_{b \in V} f_S(b) - \frac{\epsilon^2}{k} ) =P( \cup_{b \in V} {\widetilde{f_S(a)}  \le  f_S(b) - \frac{\epsilon^2}{k}} )  $$
+$$ \le \sum_{b\in V} P( \widetilde{f_S(a)}  \le  f_S(b) - \frac{\epsilon^2}{k}) \        \textcolor{red}{(1)} $$
+ 
+By the definition of $\widetilde{f_{S}(a)} = max _{b \notin S} \widetilde{f_{S}(b)}$, we know that, 
+$$ \widetilde{f_{S}(a)}  \ge \widetilde{f_{S}(b)}, \forall b\in V $$
+$$ \Rightarrow {\widetilde{f_S(a)} \le  f_S(b) - \frac{\epsilon^2}{k}} \subseteq {\widetilde{f_S(b)} \le  f_S(b) - \frac{\epsilon^2}{k}}, \forall b \in V $$
+$$ \Rightarrow  \textcolor{red}{(1)} \le \sum_{b\in V} P(\widetilde{f_S(b)} \le  f_S(b) - \frac{\epsilon^2}{k}) \         \textcolor{red}{(2)}$$
+
+From 1(c) we know that, if the sample size $ l \ge \frac{n^2}{2 {(\frac{\epsilon^2}{k})}^2} log(2 n^2 k)$, then for any node $b$, 
+$$ P(|\widetilde{f_S(b)}-f_S(b)| \ge \frac{\epsilon^2}{k}) \le \frac{1}{n^2 k}$$
+
+Since ${|\widetilde{f_S(b)}-f_S(b)| \ge \frac{\epsilon^2}{k}}= { \widetilde{f_S(b)}-f_S(b) \le -\frac{\epsilon^2}{k}  } \cup {\widetilde{f_S(b)}-f_S(b) \ge \frac{\epsilon^2}{k}}$
+$$ \Rightarrow  P(\widetilde{f_S(b)} \le  f_S(b) - \frac{\epsilon^2}{k}) \le   \frac{1}{n^2 k} $$
+$$ \Rightarrow  \textcolor{red}{(2)} \le n \frac{1}{n^2 k} =\frac{1}{n k} $$
+$$ \Rightarrow P( \widetilde{f_S(a)} \le max_{b \in V} f_S(b) - \frac{\epsilon^2}{k} ) \le \frac{1}{n k} $$
+$$ \Rightarrow P( \widetilde{f_S(a)} \ge max_{b \in V} f_S(b) - \frac{\epsilon^2}{k} ) \ge 1-\frac{1}{n k} $$
+\end{itemize}
+ 
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+\paragraph{2. The greedy algorithm with approximate marginals. (30 points)}
+
+\begin{itemize}		
+\item[\textbf{a.} ] 
+\textcolor{red}{Solution:} \\
+Since we assume that for every $o \notin S$, $f_S(o) \ge \frac{\epsilon}{k} $
+$$ \Rightarrow -\frac{\epsilon}{k} \ge -f_S(o^*) \       \textcolor{red}{(1)} $$
+
+Since $o^{*} \in V$, 
+$$max_{b \in V} f_S(b) \ge f_S(o^{*}) \       \textcolor{red}{(2)} $$
+
+Therefore, if we have an element $a \in V$ that respects $f_S(a) \ge max_{b \in V} f_S(b) - \frac{\epsilon^2}{k} $
+$$ \textcolor{red}{(1)+(2)} \Rightarrow $$
+$$f_S(a) \ge max_{b \in V} f_S(b) -  \epsilon f_S(o^{*})$$
+$$ \ge  f_S(o^{*}) -  \epsilon f_S(o^{*})$$
+$$ = (1-\epsilon) f_S(o^{*})$$
+
+\item[\textbf{b.} ] 
+\textcolor{red}{Solution:} We first prove Lemma 1 and Lemma 2, then use Lemma 2 to prove that: $$ f(S) \ge (1-\frac{1}{e^{1-\epsilon}})OPT$$.
+
+\textbf{Lemma 1:} At every step $i \in {1,...,k}$ we have that: $f(S_{i+1})-f(S_i) \ge \frac{1-\epsilon}{k} (f(O)-f(S_i))$. 
+
+\textbf{Proof:} 
+Let $O={o_1,...,o_l}$, and $o_{max}$ be the element with the highest marginal contribution in $O$ at stage $i+1$. That is: $o_{max}=argmax_{o \in O} f_{S_i}(o)$. At stage $i+1$ the algorithm selects element $a_{i+1}$ and we are guaranteed that its marginal contribution is the highest. In particular, its marginal contribution is also higher than the marginal contribution of the element in $O$ that has the highest marginal contribution: $f_{S_i}(a_{i+1}) \ge f_{S_i}(o_{max})$. At 2(a) we have proved that if  $f_S(a) \ge max_{b \in V} f_S(b) - \frac{\epsilon^2}{k} $, then $f_S(a) \ge (1-\epsilon) f_S(o^{*})$. Therefore:
+$$ f_{S_i}(O) \le \sum_{i=1}^{k}  f_{S_i}(o_j) \  (subadditivity)$$  
+$$ \le k  f_{S_i}(o^*) $$
+$$ \le k \frac{1}{1-\epsilon} f_{S_i}(a_{i+1})$$
+$$ =k \frac{1}{1-\epsilon} (f({S_i} \cup a_{i+1}) -f({S_i}))$$
+$$ =k \frac{1}{1-\epsilon} (f({S_{i+1}}) -f({S_i}))$$
+
+We therefore have: 
+$$ \Rightarrow f({S_{i+1}}) -f({S_i}) \ge \frac{1-\epsilon}{k} f_{S_i}(O)$$
+$$ = \frac{1-\epsilon}{k} (f (S_i \cup O)-f (S_i))$$
+$$ \ge \frac{1-\epsilon}{k}  (f ( O)-f (S_i))$$
+as required.
+ 
+
+\textbf{Lemma 2:} At every step $i \in {1,...,k}$ we have that: $f(S_i) \ge (1-{(1-\frac{1-\epsilon}{k})}^i)f(O)$.  
+
+\textbf{Proof:}
+The proof is by induction on $i$. 
+\begin{itemize}	
+	\item For $i=1$, using Lemma 1: $$ f(S_1) \ge \frac{1-\epsilon}{k} f(O) =(1-(1-\frac{1-\epsilon}{k})) f(O)$$ 
+	\item We now assume the claim holds for $i=l$ and we will prove that it holds for $i=l+1$. 
+	$$ f(S_{l+1}) \ge  \frac{1-\epsilon}{k} (f(O)-f(S_l)) +  f(S_l)$$ 
+ 	$$ = \frac{1-\epsilon}{k} f(O) +( 1- \frac{1-\epsilon}{k}) f(S_l) $$ 
+	$$ \ge \frac{1-\epsilon}{k} f(O) + ( 1- \frac{1-\epsilon}{k})(1-{(1-\frac{1-\epsilon}{k})}^l)f(O)  $$
+	$$ = \frac{1-\epsilon}{k} f(O) + ( ( 1- \frac{1-\epsilon}{k}) -{(1-\frac{1-\epsilon}{k})}^{l+1})f(O)  $$
+	$$ = \frac{1-\epsilon}{k} f(O) -\frac{1-\epsilon}{k} f(O)+  (1-{(1-\frac{1-\epsilon}{k})}^{l+1})f(O)   $$
+	$$ =(1-{(1-\frac{1-\epsilon}{k})}^{l+1})f(O)   $$
+
+\textbf{Proof the Main Results:}
+
+For $\forall k \ge 1$, 
+$$ (1-\frac{1-\epsilon}{k})^k = (1-\frac{1}{\frac{k}{1-\epsilon}}^{\frac{k}{1-\epsilon} 1-\epsilon} \le \frac{1}{e^{1-\epsilon}}$$ 
+Using Lemma 2, we know that:
+$$ \Rightarrow f(S) \ge (1-{(1-\frac{1-\epsilon}{k})}^{k})OPT \ge (1-\frac{1}{e^{1-\epsilon}})OPT$$
+\end{itemize}
+\end{itemize}
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\paragraph{3. Putting it all together. (20 points)}  
+
+
+\paragraph{\textcolor{red}{Solution:}} 
+\textbf{Modified Greedy Algorithm}
+
+Given graph $G=(V,E)$ with edge probabilities ${p_{v,w}}_{(v,w) \in E}$, a precision parameter $\epsilon >0$, the number of nodes in the network $n$, and the cardinality constraint k. Let the sample size $m \ge \frac{n^2}{2 \epsilon^2} log(2 n^2 k) $. For any set $S \subseteq V$: \\
+
+\begin{itemize}
+\item[1] Set $S=\emptyset$
+\item[2] While $|S| \le k$ do
+	\subitem[3]  For $i=1$ to $m$ do: 
+		\subsubitem[4] Realize every edge in $(v,w) \in E$ with probabilities $p_{v,w} $ and set $E'$ to be the set of realized edges.
+		\subsubitem[5] For every node $a \notin S$: Calculate marginal contribution of $a$ to the set $S$ in the $i$th realization, denotes as $\widetilde{f_{i,S}(a)}$.
+	\subitem[6] End for
+	\subitem[7] Calculate the empirical mean of the $m's$ sample for all nodes $a \notin S$, as the estimated marginal contribution using sampling, i.e., $$ \forall a \notin S,\widetilde{f_S(a)}=\frac{1}{m} \sum_{i=1}^{m} f_{i,S}(a)$$.
+	\subitem[8]  Return the element a that maximze the estimated marginal contribution using sampling, that is, $$a= arg \ max _{a \notin S} \widetilde{f_{S}(a)}$$
+	\subitem[9]  Let $S=S \cup a$
+\item[10] End while loop
+\item[11] Return $S$. 
+\end{itemize}
+
+\paragraph{\textbf{Proof:}} In 1(d) we have proved that, for any $S \subseteq V$, the algorithm returns a node $a \notin S$, such that $ P( f_S(a) \ge max_{b \in V} f_S(b) - \frac{\epsilon^2}{k} ) \ge 1-\frac{1}{n k}$. In 2(a) and 2(b), we then proved that, if $f_S(a) \ge max_{b \in V} f_S(b) - \frac{\epsilon^2}{k}$, then $f(S) \ge (1-\frac{1}{e^{1-\epsilon}} ) OPT$. It is equivalent to that, $$P(f(S) \ge (1-\frac{1}{e^{1-\epsilon}} ) OPT) \ge P(f_S(a) \ge max_{b \in V} f_S(b) - \frac{\epsilon^2}{k}) \ge 1-\frac{1}{n}$$. 
+
+Note that for small values of $\epsilon >0$, we have: 
+$$1-\frac{1}{e^{1-\epsilon}} =1-\frac{1}{e} e^{\epsilon} \approx 1-\frac{1}{e}(1+\epsilon)=1=\frac{1}{e}-\frac{\epsilon}{e} \ge 1-\frac{1}{e}-\epsilon $$
+
+Therefore:
+$$ P(f(S) \ge (1-\frac{1}{e}-\epsilon)OPT) \ge P(f(S) \ge (1-\frac{1}{e^{1-\epsilon}} ) OPT) $$
+$$ \ge 1-\frac{1}{nk} $$
+$$ \ge 1-\frac{1}{n} $$ (since $k \ge 1$) 
+ 
+So we have proved, the set $S$ of $k$ nodes returned by the modified greedy algorithm satisfies: $P(f(S) \ge (1-\frac{1}{e}-\epsilon) OPT ) \ge 1-\frac{1}{n}$. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\paragraph{4. Programming: Maximizing Influence on Networks (20 points)}
+
+\begin{itemize}
+\item[\textbf{a.}]  
+\textcolor{red}{Solution:}
+The probability of node 42 influencing node 75 is 0.00593041258054.
+
+\item[\textbf{b. }]  
+\textcolor{red}{Solution:}
+The average number of nodes in the randomly realized graph is 187.75.
+
+\item[\textbf{c. }] 
+\textcolor{red}{Solution:}
+$f(S)= 4.198$
+
+\item[\textbf{d. }]  
+\textcolor{red}{Solution:}
+
+Due to computation time (maybe my PC is too old and slow), I wasn't able to select 5 nodes as initial adopters, it took me more than 18 hours and still couldn't finish running. However, my code should be fine, since the program doesn't report any error and kept printing out the intermediate results. Please see "pset7 Code Xiner Zhou.py" for details.
+
+\textbf{Short description of code as a whole:} The main function "Greedy" calls 3 functions: genRandGraph(graph), BFS(graph, v), and sampleInfluence(G,S,m).  The function genRandGraph(graph) takes input a graph and outputs a new random graph only has realized edges and nodes that have at least 1 edges remained in the sampled graph. The function BFS(graph, v) takes a graph and starting node v, and returns a dict indicating reachable or not for all nodes. The function sampleInfluence(G,S,m) takes a graph G, a subset of nodes S, and sample size m as inputs, and returns an empirial estimate of influence using sampling. Finally, the Greedy algorithm takes a graph G, number of initial adopters n, and sample size m;  and returns the set of initial adopters S that maximize influence, as described in Q3. 
+
+\end{itemize}
+	 
+ 
+ 
+\end{document}
